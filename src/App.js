@@ -253,6 +253,7 @@ class App extends React.Component {
             <Grid item xs = {12} key = {item.id}>
               <IssuesItem title = {item.title} 
                           issueNo = {item.number}
+                          issueBody = {item.body}
                           createdAt = {item.created_at}
                           userName = {item.user.login}
                           comments = {item.comments}
