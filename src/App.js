@@ -3,8 +3,7 @@ import { getGithubIssues } from "./ServiceClass.js";
 import React from "react";
 
 import { withStyles } from '@material-ui/core/styles';
-import {Grid, Typography, Chip, Divider, Tabs, Tab} from '@material-ui/core'
-import InfiniteScroll from "react-infinite-scroll-component";
+import {Grid, Typography, Chip, Divider, Tabs, Tab, CircularProgress } from '@material-ui/core'
 import IssuesItem from "./IssuesItem";
 import withWidth from '@material-ui/core/withWidth';
 
@@ -89,7 +88,7 @@ const style = theme => ({
       margin : "20px 100px 0px 100px",
     },
     overflowX : "hidden",
-    border : "1px rgba(0, 0, 0, 0.23) solid",
+    border : "1px rgba(0, 0, 0, 0.23)",
     "border-top-style": "solid",
     "border-right-style": "solid",
     "border-left-style": "solid",
@@ -99,6 +98,23 @@ const style = theme => ({
     [theme.breakpoints.down('md')]: {
       width : "100vw"
     },
+  },
+  divLoad: {
+    width : "100%",
+    textAlign : "center"
+  },
+  divCircularProgress : {
+    display : "flex", 
+    justifyContent : "center", 
+    height : "100%",
+    minHeight : "50px",
+    marginTop : "5px"
+  },
+  textLoad : {
+    display: "inline",
+    color: "#0969da",
+    fontSize: "20px",
+    fontWeight: "600",
   }
 })
 
@@ -109,7 +125,8 @@ class App extends React.Component {
     this.state = {
       data : [],
       page : 1,
-      hasMore : true
+      prevY: 0,
+      isLoading : true
     };
 
     this.myRef = React.createRef();
@@ -117,22 +134,54 @@ class App extends React.Component {
 
   componentDidMount() {
     this.fetch()
+
+    var options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 1.0
+    };
+    
+    this.observer = new IntersectionObserver(
+      this.handleObserver.bind(this),
+      options
+    );
+    this.observer.observe(this.loadingRef);
+  }
+
+  handleObserver(entities, observer) {
+    const y = entities[0].boundingClientRect.y;
+    if (this.state.prevY > y) {
+      this.setState({ 
+        page: this.state.page + 1 
+      }, () => {
+        this.fetch()
+      });
+    }
+    this.setState({ prevY: y });
   }
 
   fetch = () => {
-    getGithubIssues(this.state.page)
-    .then((res) => {
-      console.log(res);
-      // this.setState({
-      //   data : res
-      // }) 
-      this.setState(prevState => ({
-        data: prevState.data.concat(res),
-        page: prevState.page + 1,
-        hasMore : prevState.page === 10 ? false : true
-      }))
+    this.setState({
+      isLoading : true
+    }, () => {
+      getGithubIssues(this.state.page)
+        .then((res) => {
+          console.log(res);
+          if(res.length === 0){
+            this.observer.unobserve(this.loadingRef);
+          }
+          this.setState(prevState => ({
+            data: prevState.data.concat(res),
+            isLoading : false
+          }))
+        });
+        })
+  }
 
-    });
+  componentDidUpdate () {
+    if(this.state.page === 5){
+      this.observer.unobserve(this.loadingRef);
+    }
   }
 
   render() {
@@ -192,29 +241,31 @@ class App extends React.Component {
           </Tabs>
         </Grid>
 
-        <Grid container ref={this.myRef} className = {classes.issuesGrid}>
+        <Grid container ref={this.myRef} className = {classes.issuesGrid} style = {{overflowY : "hidden"}}>
           <Grid item xs = {12} className = {classes.secondHeader}>
             <Typography>
               <CircleIcon className = {classes.icon} style = {{color : "#000"}}/> 625 Open 
               <CheckIcon className={classes.checkIcon}/>10,140 Closed
             </Typography>
           </Grid>
-          <InfiniteScroll
-            dataLength={this.state.data.length}
-            next={this.fetch}
-            style = {{width: this.props.width === "xs" || this.props.width === "xl" ? "100vw" : "100%", overflowX : ""}}
-            hasMore={this.state.hasMore}>
-              {this.state.data && this.state.data.length > 0 && this.state.data.map((item, index) => (
-                <Grid item xs = {12} key = {index}>
-                  <IssuesItem title = {item.title} 
-                              issueNo = {item.number}
-                              createdAt = {item.created_at}
-                              userName = {item.user.login}
-                              comments = {item.comments}
-                              labels = {item.labels}/>
-                </Grid>
-              ))}
-            </InfiniteScroll>
+
+          {this.state.data && this.state.data.length > 0 && this.state.data.map((item, index) => (
+            <Grid item xs = {12} key = {index}>
+              <IssuesItem title = {item.title} 
+                          issueNo = {item.number}
+                          createdAt = {item.created_at}
+                          userName = {item.user.login}
+                          comments = {item.comments}
+                          labels = {item.labels}/>
+            </Grid>
+          ))}
+
+          <div ref={loadingRef => (this.loadingRef = loadingRef)} className = {classes.divLoad}>
+            {/*<Typography className = {classes.textLoad}>Loading...</Typography>*/}
+            <div className = {classes.divCircularProgress}>
+              <CircularProgress style = {{display : this.state.isLoading ? "block" : "none"}}/>
+            </div>
+          </div>
         </Grid>
       </Grid>
     );

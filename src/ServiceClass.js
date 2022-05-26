@@ -1,5 +1,5 @@
 export const getGithubIssues = (page = 1) => {
-  let queryURL = `https://api.github.com/repos/facebook/react/issues?page=${page}`;
+  let queryURL = `https://api.github.com/repos/facebook/react/issues?page=${page}&per_page=100`;
   return fetch(queryURL)
     .then((response) => {
       return response.json();

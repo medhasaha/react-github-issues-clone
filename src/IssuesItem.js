@@ -11,8 +11,11 @@ const style = theme => ({
   card : {
     padding : "20px",
     cursor : "pointer",
+    border : "1px grey",
+    "border-bottom-style": "solid",
     '&:hover': {
-      background: "rgba(0, 0, 0, 0.07)",
+      background: "#F5F5DC",
+      // background: "rgba(233, 245, 248, 0.3)",
    },
   },
   title : {
