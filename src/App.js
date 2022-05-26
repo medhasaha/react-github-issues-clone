@@ -166,7 +166,7 @@ class App extends React.Component {
     }, () => {
       getGithubIssues(this.state.page)
         .then((res) => {
-          console.log(res);
+          console.log("pageNo: ", this.state.page , " res.len: ", res.length);
           if(res.length === 0){
             this.observer.unobserve(this.loadingRef);
           }
@@ -179,7 +179,7 @@ class App extends React.Component {
   }
 
   componentDidUpdate () {
-    if(this.state.page === 5){
+    if(this.state.page === 10){
       this.observer.unobserve(this.loadingRef);
     }
   }
@@ -250,7 +250,7 @@ class App extends React.Component {
           </Grid>
 
           {this.state.data && this.state.data.length > 0 && this.state.data.map((item, index) => (
-            <Grid item xs = {12} key = {index}>
+            <Grid item xs = {12} key = {item.id}>
               <IssuesItem title = {item.title} 
                           issueNo = {item.number}
                           createdAt = {item.created_at}

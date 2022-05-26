@@ -59,72 +59,66 @@ const chipColor = {
 }
 
 
-class IssuesItem extends React.Component {
-  constructor(props) {
-    super(props);
-    // console.log(this.props.labels)
-  }
+const IssuesItem = (props) => {
 
-  onClick = () => {
+  const onClick = () => {
     console.log("click")
   }
 
-  render() {
-    const { classes } = this.props;
+  const { classes } = props;
+  let noOfDays = timeSince(new Date(props.createdAt))
+  // console.log(noOfDays)
+  let time = noOfDays === "1 days" ? "yesterday" : noOfDays + " ago"
 
-    let noOfDays = timeSince(new Date(this.props.createdAt))
-    // console.log(noOfDays)
-    let time = noOfDays === "1 days" ? "yesterday" : noOfDays + " ago"
-
-    return (
-      <Card className = {classes.card} onClick = {this.onClick}> 
-        <Grid container> 
-          <Grid item>
-            <CircleIcon style={{ color: "green", marginTop : "4px"}}/>
-          </Grid>
-          <Grid item xs>
-            <Typography variant = "subtitle1" className = {classes.title}>{this.props.title}</Typography>
-            {this.props.labels && this.props.labels.length > 0 && this.props.labels.map(item => (
-              <Chip label={item.name} 
-                    variant="outlined" 
-                    size = "small" 
-                    style = {{backgroundColor : (chipColor[item.name] && chipColor[item.name].bgColor) || "#F5F5DC", 
-                              color : (chipColor[item.name] && chipColor[item.name].fColor) || "black"}}
-            className={classes.chip} />
-            ))}
-            <Hidden mdDown>
-              <div style = {{marginTop : "10px"}}>
-                <Typography className = {classes.info}>
-                  #{this.props.issueNo} opened at {time} by {this.props.userName}
-                </Typography>
-                {this.props.comments 
-                  ? <Typography className={classes.comments}>
-                      <Comment className = {classes.commentIcon}/>{this.props.comments}
-                    </Typography> 
-                  : null}
-              </div>
-            </Hidden>
-            <Hidden mdUp>
-              <Grid container style = {{marginTop : "10px"}}>
-                <Grid item xs>
-                  <Typography className = {classes.info}>
-                    #{this.props.issueNo} opened at {time} by {this.props.userName}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                {this.props.comments 
-                  ? <Typography className={classes.comments}>
-                      <Comment className = {classes.commentIcon}/>{this.props.comments}
-                    </Typography> 
-                  : null}
-                </Grid>
-              </Grid>
-            </Hidden>
-            </Grid>
+  return (
+    <Card className = {classes.card} onClick = {onClick}> 
+      <Grid container> 
+        <Grid item>
+          <CircleIcon style={{ color: "green", marginTop : "4px"}}/>
         </Grid>
-      </Card>
-    );
-  }
+        <Grid item xs>
+          <Typography variant = "subtitle1" className = {classes.title}>{props.title}</Typography>
+          {props.labels && props.labels.length > 0 && props.labels.map(item => (
+            <Chip label={item.name} 
+                  key = {item.id}
+                  variant="outlined" 
+                  size = "small" 
+                  style = {{backgroundColor : (chipColor[item.name] && chipColor[item.name].bgColor) || "#F5F5DC", 
+                            color : (chipColor[item.name] && chipColor[item.name].fColor) || "black"}}
+          className={classes.chip} />
+          ))}
+          <Hidden mdDown>
+            <div style = {{marginTop : "10px"}}>
+              <Typography className = {classes.info}>
+                #{props.issueNo} opened at {time} by {props.userName}
+              </Typography>
+              {props.comments 
+                ? <Typography className={classes.comments}>
+                    <Comment className = {classes.commentIcon}/>{props.comments}
+                  </Typography> 
+                : null}
+            </div>
+          </Hidden>
+          <Hidden mdUp>
+            <Grid container style = {{marginTop : "10px"}}>
+              <Grid item xs>
+                <Typography className = {classes.info}>
+                  #{props.issueNo} opened at {time} by {props.userName}
+                </Typography>
+              </Grid>
+              <Grid item>
+              {props.comments 
+                ? <Typography className={classes.comments}>
+                    <Comment className = {classes.commentIcon}/>{props.comments}
+                  </Typography> 
+                : null}
+              </Grid>
+            </Grid>
+          </Hidden>
+          </Grid>
+      </Grid>
+    </Card>
+  );
 }
 
 export default withStyles(style)(IssuesItem);
