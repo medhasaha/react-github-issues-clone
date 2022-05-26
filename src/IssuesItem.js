@@ -16,12 +16,15 @@ const style = theme => ({
     '&:hover': {
       background: "#F5F5DC",
       // background: "rgba(233, 245, 248, 0.3)",
-   },
+    },
   },
   title : {
     fontWeight : "600",
     display : "inline",
-    margin : "0px 0px 0px 10px"
+    margin : "0px 0px 0px 10px",
+    '&:hover': {
+      color : "blue"
+    },
   },
   chip : {
     margin : "0px 0px 0px 10px",
@@ -95,22 +98,25 @@ const chipColor = {
 
 
 const IssuesItem = (props) => {
+  //anchor elemnt for popper
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const onClick = () => {
     console.log("click")
   }
 
+  //onMouseOver for title
   const handlePoperOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  //onMouseOut for title
   const handlePoperClose = () => {
     setAnchorEl(null);
   };
 
   const { classes } = props;
-  const open = Boolean(anchorEl);
+  const open = Boolean(anchorEl); // open - T/F for popper to open
   let noOfDays = timeSince(new Date(props.createdAt))
   // console.log(noOfDays)
   // console.log(formattedDate(props.createdAt))
@@ -123,13 +129,17 @@ const IssuesItem = (props) => {
         <Grid item>
           <CircleIcon style={{ color: "green", marginTop : "4px"}}/>
         </Grid>
+
         <Grid item xs>
+          {/*issue title*/}
           <Typography variant = "subtitle1" 
                       className = {classes.title} 
                       onMouseEnter={handlePoperOpen}
                       onMouseLeave={handlePoperClose}>
             {props.title}
           </Typography>
+
+          {/*issue label or tags*/}
           {props.labels && props.labels.length > 0 && props.labels.map(item => (
             <Chip label={item.name} 
                   key = {item.id}
@@ -139,6 +149,8 @@ const IssuesItem = (props) => {
                             color : (chipColor[item.name] && chipColor[item.name].fColor) || "black"}}
           className={classes.chip} />
           ))}
+
+          {/*time and user*/}
           <Hidden mdDown>
             <div style = {{marginTop : "10px"}}>
               <Typography className = {classes.info}>
@@ -167,10 +179,11 @@ const IssuesItem = (props) => {
               </Grid>
             </Grid>
           </Hidden>
-          </Grid>
+        </Grid>
       </Grid>
     </Card>
-
+    
+    {/*on hover for title*/}
     <Popper open={open} 
             anchorEl={anchorEl} 
             className={classes.popperDiv}
@@ -204,6 +217,7 @@ const IssuesItem = (props) => {
             </Typography>
           </Grid>
 
+          {/*issue body - needs formatting*/}
           <Grid item xs = {12} style = {{marginTop : "10px"}}>
             <Typography variant = "subtitle1" className = {classes.issueBody}>{props.issueBody}</Typography>
           </Grid>

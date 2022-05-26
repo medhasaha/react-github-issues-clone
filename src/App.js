@@ -123,24 +123,24 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      data : [],
-      page : 1,
+      data : [], //store data
+      page : 1, //page no for api call
       prevY: 0,
       isLoading : true
     };
-
-    this.myRef = React.createRef();
   }
 
   componentDidMount() {
     this.fetch()
 
+    //options for IntersectionObserver
     var options = {
       root: null,
       rootMargin: "0px",
       threshold: 1.0
     };
     
+    //for infinite scrolling
     this.observer = new IntersectionObserver(
       this.handleObserver.bind(this),
       options
@@ -148,6 +148,7 @@ class App extends React.Component {
     this.observer.observe(this.loadingRef);
   }
 
+  //listen to each scroll event and page no will be updated in order to fetch the new data from the API
   handleObserver(entities, observer) {
     const y = entities[0].boundingClientRect.y;
     if (this.state.prevY > y) {
@@ -160,6 +161,7 @@ class App extends React.Component {
     this.setState({ prevY: y });
   }
 
+  //function to fetch data from api
   fetch = () => {
     this.setState({
       isLoading : true
@@ -179,6 +181,7 @@ class App extends React.Component {
   }
 
   componentDidUpdate () {
+    // stop fetching data after 10th page - stop intrsection observer 
     if(this.state.page === 10){
       this.observer.unobserve(this.loadingRef);
     }
@@ -189,6 +192,7 @@ class App extends React.Component {
 
     return (
       <Grid container> 
+        {/*header*/}
         <Grid container className = {classes.header}>
           <Grid item md = {6} xs = {12}>
             <Typography variant = "h6" style = {{display : "inline", color : "#0969da"}}>facebook</Typography>
@@ -221,6 +225,7 @@ class App extends React.Component {
             </div>
           </Grid>
 
+          {/*issues tabs*/}
           <Tabs
           value={1}
           indicatorColor="primary"
@@ -241,7 +246,7 @@ class App extends React.Component {
           </Tabs>
         </Grid>
 
-        <Grid container ref={this.myRef} className = {classes.issuesGrid} style = {{overflowY : "hidden"}}>
+        <Grid container className = {classes.issuesGrid} style = {{overflowY : "hidden"}}>
           <Grid item xs = {12} className = {classes.secondHeader}>
             <Typography>
               <CircleIcon className = {classes.icon} style = {{color : "#000"}}/> 625 Open 
@@ -249,6 +254,7 @@ class App extends React.Component {
             </Typography>
           </Grid>
 
+          {/*call issuesItem component to render a single issue ui*/}
           {this.state.data && this.state.data.length > 0 && this.state.data.map((item, index) => (
             <Grid item xs = {12} key = {item.id}>
               <IssuesItem title = {item.title} 
@@ -261,6 +267,7 @@ class App extends React.Component {
             </Grid>
           ))}
 
+          {/*loader for infinite scrolling*/}
           <div ref={loadingRef => (this.loadingRef = loadingRef)} className = {classes.divLoad}>
             {/*<Typography className = {classes.textLoad}>Loading...</Typography>*/}
             <div className = {classes.divCircularProgress}>
